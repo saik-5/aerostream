@@ -1,0 +1,173 @@
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+h2 {
+  margin: 0;
+  font-weight: 650;
+}
+
+.crumbs {
+  display: flex;
+  gap: 8px;
+  opacity: 0.8;
+  margin-bottom: 4px;
+}
+
+.sub {
+  opacity: 0.75;
+  margin-top: 4px;
+}
+
+.layout {
+  display: grid;
+  /* Auto-sized via CSS var computed from max channel label width */
+  grid-template-columns: var(--channel-rail-width, 280px) 1fr;
+  gap: 14px;
+}
+
+.left {
+  padding: 10px;
+  height: calc(100vh - 160px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.side-title {
+  font-weight: 650;
+  margin-bottom: 10px;
+}
+
+.filter {
+  width: 100%;
+}
+
+.hint {
+  opacity: 0.7;
+  font-size: 12px;
+  margin: 4px 0 8px;
+}
+
+.channel-list {
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.chan {
+  width: 100%;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 5px 6px;
+  text-align: left;
+}
+
+.chan.selected {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.main {
+  display: grid;
+  gap: 14px;
+}
+
+.chart-card {
+  padding: 12px;
+}
+
+.chart-title {
+  font-weight: 650;
+  margin-bottom: 8px;
+}
+
+.tabs-card {
+  padding: 0;
+}
+
+.tab {
+  padding: 12px;
+  display: grid;
+  gap: 8px;
+}
+
+.kv {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.qc-list {
+  margin-top: 6px;
+  display: grid;
+  gap: 6px;
+}
+
+.qc-row {
+  display: grid;
+  grid-template-columns: 10px 80px 1fr 60px;
+  gap: 8px;
+  align-items: center;
+  opacity: 0.9;
+}
+
+.qc-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(139, 148, 158, 0.6);
+}
+
+.qc-dot.pass {
+  background: rgba(63, 185, 80, 0.9);
+}
+.qc-dot.warn {
+  background: rgba(210, 153, 34, 0.9);
+}
+.qc-dot.fail {
+  background: rgba(248, 81, 73, 0.9);
+}
+
+.qc-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.qc-status {
+  text-transform: uppercase;
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.error {
+  padding: 12px;
+  margin-bottom: 12px;
+  background: rgba(248, 81, 73, 0.12);
+  border: 1px solid rgba(248, 81, 73, 0.25);
+}
+
+@media (max-width: 1200px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  .left {
+    height: auto;
+    max-height: 420px;
+  }
+}
+
+

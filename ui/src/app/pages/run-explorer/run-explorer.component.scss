@@ -1,0 +1,159 @@
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+h2 {
+  margin: 0;
+  font-weight: 650;
+  letter-spacing: 0.2px;
+}
+
+.sub {
+  opacity: 0.7;
+  margin-top: 4px;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: 320px 260px 260px 44px;
+  gap: 12px;
+  align-items: center;
+}
+
+.filter {
+  width: 260px;
+}
+
+.search {
+  width: 320px;
+}
+
+.refresh-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid rgba(48, 54, 61, 0.9);
+  background: rgba(22, 27, 34, 0.6);
+}
+
+.refresh-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.loading {
+  margin: 10px 0 12px;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.stat {
+  padding: 14px;
+}
+
+.stat-label {
+  opacity: 0.7;
+  font-size: 12px;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  margin-top: 6px;
+}
+
+.stat-sub {
+  opacity: 0.7;
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+.table-card {
+  padding: 12px;
+}
+
+.table-wrap {
+  overflow: auto;
+}
+
+.empty {
+  padding: 18px 14px 10px;
+  opacity: 0.9;
+}
+
+.empty-title {
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.empty-sub {
+  opacity: 0.75;
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.qc-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.qc-pass {
+  background: rgba(63, 185, 80, 0.18);
+  color: #3fb950;
+}
+
+.qc-warn {
+  background: rgba(210, 153, 34, 0.18);
+  color: #d29922;
+}
+
+.qc-fail {
+  background: rgba(248, 81, 73, 0.18);
+  color: #f85149;
+}
+
+.qc-pending {
+  background: rgba(139, 148, 158, 0.18);
+  color: #8b949e;
+}
+
+.error {
+  padding: 12px;
+  margin-bottom: 12px;
+  background: rgba(248, 81, 73, 0.12);
+  border: 1px solid rgba(248, 81, 73, 0.25);
+}
+
+@media (max-width: 1100px) {
+  .stats {
+    grid-template-columns: 1fr;
+  }
+  .filter {
+    width: 100%;
+    min-width: 240px;
+  }
+  .search {
+    width: 100%;
+  }
+
+  .filters {
+    grid-template-columns: 1fr;
+  }
+}
+
+

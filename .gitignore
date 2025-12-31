@@ -1,0 +1,54 @@
+# Environment
+.env
+.env.local
+.env.production
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+ENV/
+env/
+.eggs/
+*.egg-info/
+dist/
+build/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker volumes (if local)
+data/
+
+# Test artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Personal/private files (keep out of repo)
+interview_prep.md
+job_role.txt
+AeroStream_End_to_End_Flow.md
+AeroStream_Project_Plan.pdf
+docs/
+
+# Node modules (Angular UI)
+ui/node_modules/
+ui/dist/
+ui/.angular/

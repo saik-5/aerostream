@@ -1,0 +1,148 @@
+<div class="header">
+  <div>
+    <h2>Run Explorer</h2>
+    <div class="sub">Browse runs, QC status, and jump into detailed analysis.</div>
+  </div>
+
+  <div class="filters">
+    <mat-form-field appearance="outline" class="filter search">
+      <mat-label>Search</mat-label>
+      <input matInput [(ngModel)]="searchText" placeholder="run name, state, qc, id..." />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter">
+      <mat-label>Session</mat-label>
+      <mat-select [(value)]="selectedSessionId" (selectionChange)="onFiltersChanged()">
+        <mat-option [value]="null">All sessions</mat-option>
+        @for (s of sessions; track s.session_id) {
+          <mat-option [value]="s.session_id">#{{ s.session_id }} — {{ s.session_name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter">
+      <mat-label>State</mat-label>
+      <mat-select [(value)]="selectedState" (selectionChange)="onFiltersChanged()">
+        <mat-option [value]="null">All states</mat-option>
+        <mat-option value="draft">draft</mat-option>
+        <mat-option value="running">running</mat-option>
+        <mat-option value="completed">completed</mat-option>
+        <mat-option value="processing">processing</mat-option>
+        <mat-option value="validated">validated</mat-option>
+        <mat-option value="rejected">rejected</mat-option>
+        <mat-option value="archived">archived</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <button
+      mat-icon-button
+      class="refresh-btn"
+      (click)="loadRuns()"
+      matTooltip="Refresh"
+      aria-label="Refresh runs">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </div>
+</div>
+
+@if (loading) {
+  <mat-progress-bar mode="indeterminate" class="loading"></mat-progress-bar>
+}
+
+<div class="stats">
+  <mat-card class="stat">
+    <div class="stat-label">Total runs</div>
+    <div class="stat-value">{{ total }}</div>
+  </mat-card>
+  <mat-card class="stat">
+    <div class="stat-label">QC pass rate</div>
+    <div class="stat-value">{{ qcPassRate !== null ? (qcPassRate + '%') : '--' }}</div>
+    <div class="stat-sub">{{ qcStatsText ?? '' }}</div>
+  </mat-card>
+  <mat-card class="stat">
+    <div class="stat-label">Page</div>
+    <div class="stat-value">{{ page }}</div>
+    <div class="stat-sub">{{ pageSize }} per page</div>
+  </mat-card>
+</div>
+
+@if (error) {
+  <mat-card class="error">{{ error }}</mat-card>
+}
+
+<mat-card class="table-card">
+  @if (!loading && visibleRuns().length === 0) {
+    <div class="empty">
+      <div class="empty-title">No runs found</div>
+      <div class="empty-sub">Generate a run via Kafka, then refresh.</div>
+    </div>
+  }
+
+  <div class="table-wrap">
+    <table mat-table [dataSource]="visibleRuns()" class="mat-elevation-z0">
+      <ng-container matColumnDef="run_number">
+        <th mat-header-cell *matHeaderCellDef>#</th>
+        <td mat-cell *matCellDef="let r"><span class="mono">#{{ r.run_number }}</span></td>
+      </ng-container>
+
+      <ng-container matColumnDef="run_name">
+        <th mat-header-cell *matHeaderCellDef>Name</th>
+        <td mat-cell *matCellDef="let r">{{ r.run_name }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="session_id">
+        <th mat-header-cell *matHeaderCellDef>Session</th>
+        <td mat-cell *matCellDef="let r">{{ r.session_id ?? '-' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="ts_start">
+        <th mat-header-cell *matHeaderCellDef>Start</th>
+        <td mat-cell *matCellDef="let r">{{ r.ts_start ? (r.ts_start | date:'short') : '-' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="duration">
+        <th mat-header-cell *matHeaderCellDef>Dur</th>
+        <td mat-cell *matCellDef="let r">{{ formatDuration(r) }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="state">
+        <th mat-header-cell *matHeaderCellDef>State</th>
+        <td mat-cell *matCellDef="let r">{{ r.state }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="qc_status">
+        <th mat-header-cell *matHeaderCellDef>QC</th>
+        <td mat-cell *matCellDef="let r">
+          <span class="qc-badge" [ngClass]="badgeClass(r.qc_status)">
+            {{ (r.qc_status ?? 'not_run') | uppercase }}
+          </span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="sample_count">
+        <th mat-header-cell *matHeaderCellDef>Samples</th>
+        <td mat-cell *matCellDef="let r"><span class="mono">{{ r.sample_count | number }}</span></td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let r">
+          <a mat-button color="primary" [routerLink]="['/runs', r.run_id]">View</a>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+  </div>
+
+  <mat-paginator
+    [length]="total"
+    [pageSize]="pageSize"
+    [pageIndex]="page - 1"
+    [pageSizeOptions]="[10, 25, 50, 100]"
+    (page)="onPage($event)">
+  </mat-paginator>
+</mat-card>
+
+

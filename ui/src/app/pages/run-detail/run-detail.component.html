@@ -1,0 +1,107 @@
+<div class="header">
+  <div>
+    <div class="crumbs">
+      <a routerLink="/runs">Runs</a>
+      <span>/</span>
+      <span class="mono">run_id={{ runId }}</span>
+    </div>
+    <h2>{{ run?.run_name ?? ('Run ' + runId) }}</h2>
+    <div class="sub">
+      State: <b>{{ run?.state ?? '-' }}</b>
+      · Samples: <span class="mono">{{ (run?.sample_count ?? 0) | number }}</span>
+      · Started: {{ run?.ts_start ? (run?.ts_start | date:'short') : '-' }}
+    </div>
+  </div>
+
+  <button mat-stroked-button (click)="loadAll()">
+    <mat-icon>refresh</mat-icon>
+    Refresh
+  </button>
+</div>
+
+@if (error) {
+  <mat-card class="error">{{ error }}</mat-card>
+}
+
+<div class="layout" [style.--channel-rail-width]="channelRailWidth">
+  <mat-card class="left">
+    <div class="side-title">Channels</div>
+    <mat-form-field appearance="outline" class="filter">
+      <mat-label>Search</mat-label>
+      <input matInput [(ngModel)]="channelFilter" placeholder="force, pressure, ..." />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter">
+      <mat-label>Bucket seconds</mat-label>
+      <mat-select [(value)]="bucketSeconds" (selectionChange)="loadSeries()">
+        <mat-option [value]="1">1</mat-option>
+        <mat-option [value]="2">2</mat-option>
+        <mat-option [value]="5">5</mat-option>
+        <mat-option [value]="10">10</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div class="hint">
+      Selecting >10 channels will be capped to the first 10 (API limit).
+    </div>
+
+    <div class="channel-list">
+      @for (c of filteredChannels(); track c.channel_id) {
+        <button
+          mat-button
+          class="chan"
+          [class.selected]="selectedChannelIds.includes(c.channel_id)"
+          (click)="toggleChannel(c.channel_id)">
+          <span class="mono">#{{ c.channel_id }}</span>
+          <span class="name">{{ c.channel_name }}</span>
+        </button>
+      }
+    </div>
+  </mat-card>
+
+  <div class="main">
+    <mat-card class="chart-card">
+      <div class="chart-title">Time Series</div>
+      <app-time-series-chart [channels]="series?.channels ?? []" [height]="420" />
+    </mat-card>
+
+    <mat-card class="tabs-card">
+      <mat-tab-group>
+        <mat-tab label="Metrics">
+          <div class="tab">
+            <div class="kv"><span>Cl mean</span><b class="mono">{{ stats?.cl_mean ?? '-' }}</b></div>
+            <div class="kv"><span>Cd mean</span><b class="mono">{{ stats?.cd_mean ?? '-' }}</b></div>
+            <div class="kv"><span>L/D</span><b class="mono">{{ stats?.efficiency ?? '-' }}</b></div>
+            <div class="kv"><span>Balance %</span><b class="mono">{{ stats?.aero_balance_pct ?? '-' }}</b></div>
+          </div>
+        </mat-tab>
+        <mat-tab label="QC">
+          <div class="tab">
+            <div class="kv"><span>Overall</span><b>{{ qc?.overall_status ?? 'not_run' }}</b></div>
+            <div class="kv"><span>Passed</span><b class="mono">{{ qc?.passed_checks ?? 0 }}/{{ qc?.total_checks ?? 0 }}</b></div>
+            <div class="qc-list">
+              @for (check of (qc?.checks ?? []); track check.rule_code + '-' + (check.channel_id ?? 0)) {
+                <div class="qc-row">
+                  <span class="qc-dot" [ngClass]="(check.status || '').toLowerCase()"></span>
+                  <span class="mono">{{ check.rule_code }}</span>
+                  <span class="qc-name">{{ check.rule_name }}</span>
+                  <span class="qc-status">{{ check.status }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        </mat-tab>
+        <mat-tab label="Setpoints">
+          <div class="tab">
+            <div class="kv"><span>Speed</span><b class="mono">{{ run?.velocity_setpoint ?? '-' }}</b></div>
+            <div class="kv"><span>AoA</span><b class="mono">{{ run?.aoa_setpoint ?? '-' }}</b></div>
+            <div class="kv"><span>Yaw</span><b class="mono">{{ run?.yaw_setpoint ?? '-' }}</b></div>
+            <div class="kv"><span>Ride height (F/R)</span><b class="mono">{{ run?.ride_height_front ?? '-' }}/{{ run?.ride_height_rear ?? '-' }}</b></div>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </mat-card>
+  </div>
+</div>
+
+

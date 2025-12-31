@@ -1,0 +1,104 @@
+<div class="header">
+  <h2>Request a Demo Run</h2>
+  <div class="sub">No login. Submit a request and check status later. You’ll see a run_id once fulfilled.</div>
+</div>
+
+@if (error) {
+  <mat-card class="error">{{ error }}</mat-card>
+}
+
+<div class="grid">
+  <mat-card class="card">
+    <h3>Create request</h3>
+    <form [formGroup]="form" class="form">
+      <div class="row">
+        <mat-form-field appearance="outline">
+          <mat-label>Name (optional)</mat-label>
+          <input matInput formControlName="requester_name" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Email (optional)</mat-label>
+          <input matInput formControlName="requester_email" />
+        </mat-form-field>
+      </div>
+
+      <div class="row">
+        <mat-form-field appearance="outline">
+          <mat-label>Variant</mat-label>
+          <mat-select formControlName="requested_variant">
+            <mat-option value="baseline">baseline</mat-option>
+            <mat-option value="variant_a">variant_a</mat-option>
+            <mat-option value="variant_b">variant_b</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Duration (sec)</mat-label>
+          <input matInput type="number" formControlName="requested_duration_sec" />
+        </mat-form-field>
+      </div>
+
+      <div class="row">
+        <mat-form-field appearance="outline">
+          <mat-label>Speed (m/s)</mat-label>
+          <input matInput type="number" formControlName="requested_speed_ms" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>AoA (deg)</mat-label>
+          <input matInput type="number" formControlName="requested_aoa_deg" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Yaw (deg)</mat-label>
+          <input matInput type="number" formControlName="requested_yaw_deg" />
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Notes (optional)</mat-label>
+        <input matInput formControlName="requested_notes" />
+      </mat-form-field>
+
+      <button mat-raised-button color="primary" (click)="submit()" [disabled]="submitting || form.invalid">
+        <mat-icon>send</mat-icon>
+        Submit
+      </button>
+    </form>
+
+    @if (created) {
+      <div class="result">
+        Submitted. request_id=<span class="mono">{{ created.request_id }}</span> (status={{ created.status }})
+      </div>
+    }
+  </mat-card>
+
+  <mat-card class="card">
+    <h3>Check status</h3>
+    <form [formGroup]="checkForm" class="form">
+      <mat-form-field appearance="outline">
+        <mat-label>request_id</mat-label>
+        <input matInput type="number" formControlName="request_id" />
+      </mat-form-field>
+
+      <button mat-stroked-button (click)="loadStatus()" [disabled]="statusLoading || checkForm.invalid">
+        <mat-icon>search</mat-icon>
+        Check
+      </button>
+    </form>
+
+    @if (status) {
+      <div class="status">
+        <div><b>Status:</b> {{ status.status }}</div>
+        <div><b>Run ID:</b> {{ status.run_id ?? '-' }}</div>
+        @if (status.reviewer_notes) {
+          <div><b>Notes:</b> {{ status.reviewer_notes }}</div>
+        }
+        @if (status.run_id) {
+          <div class="jump">
+            <a mat-button color="primary" [routerLink]="['/runs', status.run_id]">Open run</a>
+          </div>
+        }
+      </div>
+    }
+  </mat-card>
+</div>
+
+

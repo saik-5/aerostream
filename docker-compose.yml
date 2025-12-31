@@ -1,0 +1,94 @@
+# AeroStream Infrastructure
+# SQL Server 2022 + Redpanda (Kafka) + Console
+
+services:
+  # SQL Server 2022 on Linux (x64 via Docker Desktop emulation on ARM64)
+  # Microsoft's official recommendation for ARM64 developers
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    platform: linux/amd64  # Explicit x64 emulation via Docker Desktop
+    container_name: aerostream-sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "${SQL_SERVER_PASSWORD}"
+      MSSQL_PID: "Developer"  # Free Developer Edition
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+      - ./scripts:/scripts:ro  # Mount scripts for easy access
+    restart: unless-stopped
+    networks:
+      - aerostream-network
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "${SQL_SERVER_PASSWORD}" -C -Q "SELECT 1" || exit 1
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
+
+  # Redpanda (Kafka-compatible, simpler setup)
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:latest
+    container_name: aerostream-redpanda
+    command:
+      - redpanda
+      - start
+      - --smp
+      - '1'
+      - --memory
+      - '1G'
+      - --overprovisioned
+      - --node-id
+      - '0'
+      - --kafka-addr
+      - PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+      - --advertise-kafka-addr
+      - PLAINTEXT://redpanda:29092,OUTSIDE://localhost:9092
+      - --pandaproxy-addr
+      - PLAINTEXT://0.0.0.0:28082,OUTSIDE://0.0.0.0:8082
+      - --advertise-pandaproxy-addr
+      - PLAINTEXT://redpanda:28082,OUTSIDE://localhost:8082
+    ports:
+      - "9092:9092"      # Kafka API (external)
+      - "29092:29092"    # Kafka API (internal)
+      - "8082:8082"      # HTTP Proxy
+    volumes:
+      - redpanda_data:/var/lib/redpanda/data
+    restart: unless-stopped
+    networks:
+      - aerostream-network
+    healthcheck:
+      test: ["CMD", "rpk", "cluster", "health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+  # Redpanda Console (Web UI for debugging)
+  redpanda-console:
+    image: docker.redpanda.com/redpandadata/console:latest
+    container_name: aerostream-console
+    entrypoint: /bin/sh
+    command: -c "echo \"$$CONSOLE_CONFIG_FILE\" > /tmp/config.yml; /app/console"
+    environment:
+      CONFIG_FILEPATH: /tmp/config.yml
+      CONSOLE_CONFIG_FILE: |
+        kafka:
+          brokers: ["redpanda:29092"]
+    ports:
+      - "8080:8080"
+    depends_on:
+      redpanda:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - aerostream-network
+
+networks:
+  aerostream-network:
+    driver: bridge
+
+volumes:
+  sqlserver_data:
+  redpanda_data:
