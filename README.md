@@ -1,4 +1,4 @@
-# AeroStream 🏎️
+# AeroStream
 
 **Wind Tunnel Data Processing Platform for Motorsport Aerodynamics**
 
